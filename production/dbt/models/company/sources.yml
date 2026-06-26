@@ -1,0 +1,41 @@
+version: 2
+
+sources:
+  - name: staging
+    database: "{{ var('source_project', 'datahub-prod-477220') }}"
+    schema: staging
+    description: "Curated source-system staging layer in the existing Newlab warehouse."
+    tables:
+      - name: stg_hubspot_companies
+        description: "Curated HubSpot company records used for representative company display attributes."
+      - name: stg_hubspot_deals
+        description: "Curated HubSpot deal records used as commercial engagement events."
+      - name: stg_hubspot_deal_company
+        description: "HubSpot deal-to-company associations. The MVP uses primary company association category/type only."
+      - name: stg_officernd_companies
+        description: "Curated OfficeRnD company records used for representative membership-system attributes."
+      - name: stg_bigtime_clients
+        description: "Curated BigTime client records used for representative project-system attributes."
+      - name: stg_bigtime_projects
+        description: "Curated BigTime project records used as project engagement events."
+
+  - name: intermediate
+    database: "{{ var('source_project', 'datahub-prod-477220') }}"
+    schema: intermediate
+    description: "Intermediate business logic layer in the existing Newlab warehouse."
+    tables:
+      - name: int_cross_source_companies
+        description: "Existing canonical company mapping across source systems."
+      - name: int_membership_detail
+        description: "OfficeRnD membership/resource/period detail used for membership engagement events."
+      - name: int_membership_months
+        description: "Monthly expansion of membership detail used for membership status reporting."
+
+  - name: marts
+    database: "{{ var('source_project', 'datahub-prod-477220') }}"
+    schema: marts
+    description: "Existing reporting marts in the Newlab warehouse."
+    tables:
+      - name: mart_membership_detail
+        description: "Existing monthly membership mart used as reconciliation reference for mart_membership_status."
+

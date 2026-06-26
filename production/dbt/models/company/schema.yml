@@ -1,0 +1,262 @@
+version: 2
+
+models:
+  - name: bridge_company_source
+    description: "Canonical company source bridge. One row per canonical company, source system, and source company ID. This is the mapping source of truth for the company data product."
+    tests:
+      - unique_combination_of_columns:
+          combination_of_columns:
+            - canonical_company_id
+            - source_system
+            - source_company_id
+    columns:
+      - name: canonical_company_id
+        description: "Canonical company identifier assigned by the existing cross-source company mapping. May be null for unmatched source records."
+        tests:
+          - relationships:
+              to: ref('dim_company')
+              field: canonical_company_id
+              config:
+                where: "canonical_company_id is not null"
+      - name: source_system
+        description: "Source system for the company record."
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['hubspot', 'officernd', 'bigtime']
+      - name: source_company_id
+        description: "Company or client identifier from the source system."
+        tests:
+          - not_null
+      - name: source_company_name
+        description: "Company name from the source system used for review and audit."
+      - name: requires_manual_review
+        description: "Flag indicating whether the mapping requires manual review."
+        tests:
+          - not_null
+      - name: match_confidence
+        description: "Numeric confidence score from the upstream matching logic."
+      - name: match_priority
+        description: "Priority assigned by the upstream matching logic."
+      - name: match_method
+        description: "Method used by the upstream matching logic."
+      - name: match_detail
+        description: "Additional detail about how the source record was matched."
+      - name: _resolved_at
+        description: "Timestamp or datetime when the mapping was resolved upstream."
+
+  - name: dim_company
+    description: "Canonical company display dimension. One row per non-null canonical company ID. Representative attributes are for display only and should not replace bridge_company_source for source mapping."
+    tests:
+      - unique_combination_of_columns:
+          combination_of_columns:
+            - canonical_company_id
+    columns:
+      - name: canonical_company_id
+        description: "Canonical company identifier and primary key for the dimension."
+        tests:
+          - not_null
+          - unique
+      - name: company_name
+        description: "Preferred display company name, selected from HubSpot, then OfficeRnD, then BigTime."
+      - name: company_name_source
+        description: "Source system used for the displayed company name."
+        tests:
+          - accepted_values:
+              values: ['hubspot', 'officernd', 'bigtime']
+      - name: company_domain
+        description: "HubSpot representative company domain."
+      - name: hubspot_industry
+        description: "HubSpot representative industry."
+      - name: hubspot_city
+        description: "HubSpot representative city."
+      - name: hubspot_country
+        description: "HubSpot representative country."
+      - name: employee_count
+        description: "HubSpot representative employee count."
+      - name: annual_revenue
+        description: "HubSpot representative annual revenue."
+      - name: officernd_company_email
+        description: "OfficeRnD representative company email."
+      - name: officernd_company_url
+        description: "OfficeRnD representative company URL."
+      - name: officernd_company_status
+        description: "OfficeRnD representative company status."
+      - name: officernd_company_type
+        description: "OfficeRnD representative company type."
+      - name: officernd_company_tier
+        description: "OfficeRnD representative company tier."
+      - name: officernd_location_id
+        description: "OfficeRnD representative location ID."
+      - name: bigtime_client_legal_name
+        description: "BigTime representative legal client name."
+      - name: bigtime_client_code
+        description: "BigTime representative client code."
+      - name: bigtime_client_type
+        description: "BigTime representative client type."
+      - name: bigtime_city
+        description: "BigTime representative city."
+      - name: bigtime_state
+        description: "BigTime representative state."
+      - name: bigtime_country
+        description: "BigTime representative country."
+      - name: hubspot_company_ids
+        description: "All HubSpot company IDs mapped to the canonical company."
+      - name: officernd_company_ids
+        description: "All OfficeRnD company IDs mapped to the canonical company."
+      - name: bigtime_client_ids
+        description: "All BigTime client IDs mapped to the canonical company."
+      - name: source_system_count
+        description: "Count of distinct source systems represented by the canonical company."
+        tests:
+          - not_null
+      - name: has_manual_review_mapping
+        description: "True when any source mapping for the canonical company requires manual review."
+        tests:
+          - not_null
+      - name: min_match_confidence
+        description: "Lowest match confidence across source mappings for the canonical company."
+
+  - name: fct_engagement_ledger
+    description: "Consolidated company engagement ledger for HubSpot deals, OfficeRnD memberships, and BigTime projects."
+    columns:
+      - name: engagement_event_id
+        description: "Deterministic primary key generated from source type and source identifiers."
+        tests:
+          - not_null
+          - unique
+      - name: canonical_company_id
+        description: "Canonical company identifier when the source company is mapped."
+        tests:
+          - relationships:
+              to: ref('dim_company')
+              field: canonical_company_id
+              config:
+                where: "canonical_company_id is not null"
+      - name: canonical_company_id_is_null
+        description: "True when the engagement row has no canonical company mapping."
+        tests:
+          - not_null
+      - name: source_company_id
+        description: "Source-system company or client ID attached to the engagement."
+        tests:
+          - not_null
+      - name: source_system
+        description: "Source system for the engagement event."
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['hubspot', 'officernd', 'bigtime']
+      - name: engagement_type
+        description: "High-level engagement type."
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['deal', 'membership', 'project']
+      - name: source_engagement_id
+        description: "Source-system engagement identifier."
+        tests:
+          - not_null
+      - name: engagement_name
+        description: "Human-readable engagement name from the source system."
+      - name: engagement_subtype
+        description: "Source-specific subtype such as deal type, membership category, or project production status."
+      - name: engagement_status
+        description: "Normalized engagement status where possible."
+      - name: engagement_status_raw
+        description: "Raw source-system engagement status value."
+      - name: start_date
+        description: "Start date or best available timeline anchor for the engagement."
+      - name: end_date
+        description: "End date for the engagement when available."
+      - name: amount
+        description: "Source-specific monetary value: deal amount, membership price, or project budget fees."
+      - name: member_id
+        description: "OfficeRnD member ID for membership rows; null for other sources."
+      - name: membership_id
+        description: "OfficeRnD membership ID for membership rows; null for other sources."
+      - name: requires_manual_review
+        description: "Mapping review flag for the source company. Defaults true when no bridge match is found."
+        tests:
+          - not_null
+      - name: match_confidence
+        description: "Match confidence from the source company bridge."
+
+  - name: mart_membership_status
+    description: "Current and past monthly membership status mart by OfficeRnD company, location, membership category, and plan."
+    tests:
+      - unique_combination_of_columns:
+          combination_of_columns:
+            - month_start
+            - officernd_company_id
+            - location_id
+            - membership_category
+            - plan_id
+    columns:
+      - name: month_start
+        description: "First day of the membership reporting month."
+        tests:
+          - not_null
+      - name: canonical_company_id
+        description: "Canonical company identifier when the OfficeRnD company is mapped."
+        tests:
+          - relationships:
+              to: ref('dim_company')
+              field: canonical_company_id
+              config:
+                where: "canonical_company_id is not null"
+      - name: canonical_company_id_is_null
+        description: "True when the membership group has no canonical company mapping."
+        tests:
+          - not_null
+      - name: officernd_company_id
+        description: "OfficeRnD company ID for membership reporting and reconciliation."
+        tests:
+          - not_null
+      - name: location_id
+        description: "OfficeRnD location ID."
+        tests:
+          - not_null
+      - name: location_name
+        description: "OfficeRnD location name."
+      - name: location_code
+        description: "OfficeRnD location code."
+      - name: membership_category
+        description: "Membership category normalized with nulls set to Uncategorized."
+        tests:
+          - not_null
+      - name: plan_id
+        description: "OfficeRnD plan ID."
+        tests:
+          - not_null
+      - name: plan_name
+        description: "OfficeRnD plan name."
+      - name: active_memberships
+        description: "Count of distinct contracted memberships in the reporting group."
+        tests:
+          - not_null
+      - name: active_members
+        description: "Count of distinct members in the reporting group."
+        tests:
+          - not_null
+      - name: total_mrr
+        description: "Monthly recurring revenue using discounted price when available, otherwise price."
+        tests:
+          - not_null
+      - name: total_calculated_list_price
+        description: "Total list price value using calculated list price when available."
+        tests:
+          - not_null
+      - name: total_calculated_discount_amount
+        description: "Total calculated discount amount."
+        tests:
+          - not_null
+      - name: has_manual_review_mapping
+        description: "True when any source mapping in the group requires manual review."
+        tests:
+          - not_null
+      - name: min_match_confidence
+        description: "Lowest match confidence observed in the membership group."
+      - name: observed_membership_statuses
+        description: "Up to 10 distinct membership statuses observed in the reporting group."
+

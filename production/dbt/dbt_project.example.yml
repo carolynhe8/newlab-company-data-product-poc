@@ -1,0 +1,26 @@
+name: newlab_company_data_product
+version: "1.0.0"
+config-version: 2
+
+profile: newlab
+
+model-paths:
+  - models
+macro-paths:
+  - macros
+test-paths:
+  - tests
+
+vars:
+  source_project: datahub-prod-477220
+  company_data_schema: company_data # TODO: replace with approved production dataset/schema.
+  company_data_materialization: view
+  company_dimension_materialization: view
+  company_fact_materialization: view
+  company_mart_materialization: view
+
+models:
+  newlab_company_data_product:
+    company:
+      +tags:
+        - company_data_product

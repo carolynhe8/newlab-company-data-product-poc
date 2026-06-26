@@ -1,0 +1,42 @@
+# macOS/local files
+.DS_Store
+*/.DS_Store
+
+# Environment and local configuration
+.env
+.env.*
+!.env.example
+*.local
+
+# Google Cloud credentials and service account keys
+application_default_credentials.json
+*application_default_credentials*.json
+*credentials*.json
+*service*account*.json
+*service-account*.json
+gcloud/
+.config/gcloud/
+
+# Private keys and certificates
+*.key
+*.pem
+*.p12
+*.pfx
+
+# dbt/local build artifacts
+target/
+dbt_packages/
+logs/
+
+# Python/cache artifacts
+__pycache__/
+*.py[cod]
+
+# Large generated data extracts
+*.csv
+*.tsv
+*.parquet
+*.avro
+*.ndjson
+*.jsonl
+*.xlsx

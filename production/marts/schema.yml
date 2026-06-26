@@ -1,0 +1,104 @@
+version: 2
+
+models:
+  - name: mart_newlab_companies
+    description: "Default user-facing company mart for Connected Sheets, dashboards, and ad hoc analysis. One row per canonical company ID."
+    columns:
+      - name: canonical_company_id
+        description: "Canonical company identifier and primary key for the user-facing mart."
+        tests:
+          - not_null
+          - unique
+          - relationships:
+              to: ref('dim_company')
+              field: canonical_company_id
+      - name: company_name
+        description: "Preferred display company name from dim_company."
+      - name: company_name_source
+        description: "Source system used for the preferred display company name."
+        tests:
+          - accepted_values:
+              values: ['hubspot', 'officernd', 'bigtime']
+      - name: source_system_count
+        description: "Count of source systems mapped to the canonical company."
+        tests:
+          - not_null
+      - name: is_multi_source_company
+        description: "True when the canonical company is mapped to more than one source system."
+        tests:
+          - not_null
+          - accepted_values:
+              values: [true, false]
+              quote: false
+      - name: has_identity_manual_review_mapping
+        description: "True when the identity mapping in dim_company requires manual review."
+        tests:
+          - not_null
+          - accepted_values:
+              values: [true, false]
+              quote: false
+      - name: has_any_manual_review_mapping
+        description: "True when identity, membership, or engagement mappings require manual review."
+        tests:
+          - not_null
+          - accepted_values:
+              values: [true, false]
+              quote: false
+      - name: membership_status
+        description: "Current company membership status derived from current and historical membership rows."
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['active_member', 'former_member', 'no_membership_record']
+      - name: has_active_membership
+        description: "True when the company has active memberships in the current calendar month."
+        tests:
+          - not_null
+          - accepted_values:
+              values: [true, false]
+              quote: false
+      - name: current_active_memberships
+        description: "Current-month active membership count."
+        tests:
+          - not_null
+      - name: current_active_members
+        description: "Current-month active member count."
+        tests:
+          - not_null
+      - name: current_total_mrr
+        description: "Current-month membership MRR."
+        tests:
+          - not_null
+      - name: has_engagement
+        description: "True when the company has at least one engagement ledger row."
+        tests:
+          - not_null
+          - accepted_values:
+              values: [true, false]
+              quote: false
+      - name: has_deal_engagement
+        description: "True when the company has at least one HubSpot deal engagement."
+        tests:
+          - not_null
+          - accepted_values:
+              values: [true, false]
+              quote: false
+      - name: has_membership_engagement
+        description: "True when the company has at least one OfficeRnD membership engagement row."
+        tests:
+          - not_null
+          - accepted_values:
+              values: [true, false]
+              quote: false
+      - name: has_project_engagement
+        description: "True when the company has at least one BigTime project engagement."
+        tests:
+          - not_null
+          - accepted_values:
+              values: [true, false]
+              quote: false
+      - name: total_engagement_count
+        description: "Total count of engagement ledger rows for the company."
+        tests:
+          - not_null
+
