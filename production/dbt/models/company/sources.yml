@@ -31,6 +31,18 @@ sources:
       - name: int_membership_months
         description: "Monthly expansion of membership detail used for membership status reporting."
 
+  - name: hubspot
+    database: "{{ var('source_project', 'datahub-prod-477220') }}"
+    schema: hubspot
+    description: "Raw HubSpot object and association tables used only for structured Startup Project engagements."
+    tables:
+      - name: projects
+        description: "HubSpot Startup Project object used as structured project engagement events."
+      - name: projects_to_company
+        description: "HubSpot project-to-company associations. The MVP uses type_id 105 for project_startup and type_id 107 for project_partner."
+      - name: company
+        description: "HubSpot company object used to label Startup Project partner companies."
+
   - name: marts
     database: "{{ var('source_project', 'datahub-prod-477220') }}"
     schema: marts
@@ -38,4 +50,3 @@ sources:
     tables:
       - name: mart_membership_detail
         description: "Existing monthly membership mart used as reconciliation reference for mart_membership_status."
-

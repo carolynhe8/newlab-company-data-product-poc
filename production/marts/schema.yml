@@ -91,7 +91,7 @@ models:
               values: [true, false]
               quote: false
       - name: has_project_engagement
-        description: "True when the company has at least one BigTime project engagement."
+        description: "True when the company has at least one BigTime project or HubSpot Startup Project engagement."
         tests:
           - not_null
           - accepted_values:
@@ -104,11 +104,11 @@ models:
       - name: engagement_categories
         description: "Distinct engagement taxonomy categories observed for the company. MVP values are currently limited to Business."
       - name: engagement_timeline
-        description: "Up to 20 most recent structured business engagement events from fct_engagement_ledger, including category, type, name, status, dates, and source system."
+        description: "Up to 20 most recent structured business engagement events from fct_engagement_ledger, including category, type, name, status, dates, source system, program context, and partner attribution when available."
       - name: recent_engagements
-        description: "Up to 10 most recent engagement events from fct_engagement_ledger, with type, name, status, dates, and source system."
+        description: "Up to 10 most recent engagement events from fct_engagement_ledger, with type, name, status, dates, source system, program context, and partner attribution when available."
       - name: project_engagements
-        description: "Up to 10 most recent project engagement events from fct_engagement_ledger."
+        description: "Up to 10 most recent project engagement events from fct_engagement_ledger, including HubSpot Startup Projects and BigTime projects."
       - name: deal_engagements
         description: "Up to 10 most recent deal engagement events from fct_engagement_ledger."
       - name: membership_engagements

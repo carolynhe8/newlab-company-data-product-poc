@@ -12,11 +12,15 @@
 --   datahub-prod-477220.intermediate.int_cross_source_companies
 --   datahub-prod-477220.staging.stg_hubspot_deals
 --   datahub-prod-477220.staging.stg_hubspot_deal_company
+--   datahub-prod-477220.hubspot.projects
+--   datahub-prod-477220.hubspot.projects_to_company
+--   datahub-prod-477220.hubspot.company
 --   datahub-prod-477220.intermediate.int_membership_detail
 --   datahub-prod-477220.staging.stg_bigtime_projects
 --
 -- Notes:
---   Includes HubSpot deals, OfficeRnD memberships, and BigTime projects.
+--   Includes HubSpot deals, HubSpot Startup Projects, OfficeRnD memberships,
+--   and BigTime projects.
 --   Carries canonical mapping QA flags on every row.
 --   HubSpot CRM activity objects such as emails, calls, notes, meetings, and
 --   tasks are intentionally excluded from the MVP. They can be modeled later as
@@ -58,6 +62,9 @@ hubspot_deals AS (
     d.deal_amount AS amount,
     CAST(NULL AS STRING) AS member_id,
     CAST(NULL AS STRING) AS membership_id,
+    CAST(NULL AS STRING) AS program_name,
+    ARRAY<STRING>[] AS partner_company_ids,
+    ARRAY<STRING>[] AS partner_names,
     COALESCE(b.requires_manual_review, TRUE) AS requires_manual_review,
     b.match_confidence
   FROM `datahub-prod-477220.staging.stg_hubspot_deals` AS d
@@ -68,6 +75,54 @@ hubspot_deals AS (
   LEFT JOIN bridge AS b
     ON b.source_system = 'hubspot'
    AND b.source_company_id = dc.company_id
+),
+
+hubspot_project_partners AS (
+  SELECT
+    pc.from_id AS project_id,
+    ARRAY_AGG(DISTINCT CAST(pc.to_id AS STRING) IGNORE NULLS ORDER BY CAST(pc.to_id AS STRING)) AS partner_company_ids,
+    ARRAY_AGG(DISTINCT CAST(c.property_name AS STRING) IGNORE NULLS ORDER BY CAST(c.property_name AS STRING)) AS partner_names
+  FROM `datahub-prod-477220.hubspot.projects_to_company` AS pc
+  LEFT JOIN `datahub-prod-477220.hubspot.company` AS c
+    ON c.id = pc.to_id
+  WHERE pc.type_id = 107 -- project_partner
+  GROUP BY pc.from_id
+),
+
+hubspot_startup_projects AS (
+  SELECT
+    TO_HEX(SHA256(CONCAT('hubspot_startup_project|', CAST(p.id AS STRING), '|', CAST(startup.to_id AS STRING)))) AS engagement_event_id,
+    b.canonical_company_id,
+    b.canonical_company_id IS NULL AS canonical_company_id_is_null,
+    CAST(startup.to_id AS STRING) AS source_company_id,
+    'hubspot' AS source_system,
+    'Business' AS engagement_category,
+    'project' AS engagement_type,
+    CAST(p.id AS STRING) AS source_engagement_id,
+    p.property_project_name AS engagement_name,
+    p.property_project_category AS engagement_subtype,
+    COALESCE(p.property_project_status, 'unknown') AS engagement_status,
+    p.property_project_status AS engagement_status_raw,
+    DATE(p.property_project_start_date) AS start_date,
+    DATE(p.property_project_end_date) AS end_date,
+    CAST(NULL AS FLOAT64) AS amount,
+    CAST(NULL AS STRING) AS member_id,
+    CAST(NULL AS STRING) AS membership_id,
+    p.property_offering AS program_name,
+    COALESCE(partners.partner_company_ids, ARRAY<STRING>[]) AS partner_company_ids,
+    COALESCE(partners.partner_names, ARRAY<STRING>[]) AS partner_names,
+    COALESCE(b.requires_manual_review, TRUE) AS requires_manual_review,
+    b.match_confidence
+  FROM `datahub-prod-477220.hubspot.projects` AS p
+  JOIN `datahub-prod-477220.hubspot.projects_to_company` AS startup
+    ON startup.from_id = p.id
+   AND startup.type_id = 105 -- project_startup
+  LEFT JOIN hubspot_project_partners AS partners
+    ON partners.project_id = p.id
+  LEFT JOIN bridge AS b
+    ON b.source_system = 'hubspot'
+   AND b.source_company_id = CAST(startup.to_id AS STRING)
+  WHERE NOT COALESCE(p._fivetran_deleted, FALSE)
 ),
 
 officernd_memberships AS (
@@ -107,6 +162,9 @@ officernd_memberships AS (
     COALESCE(md.calculated_list_price, md.discounted_price, md.price) AS amount,
     md.member_id,
     md.membership_id,
+    CAST(NULL AS STRING) AS program_name,
+    ARRAY<STRING>[] AS partner_company_ids,
+    ARRAY<STRING>[] AS partner_names,
     COALESCE(b.requires_manual_review, TRUE) AS requires_manual_review,
     b.match_confidence
   FROM `datahub-prod-477220.intermediate.int_membership_detail` AS md
@@ -134,6 +192,9 @@ bigtime_projects AS (
     p.budget_fees AS amount,
     CAST(NULL AS STRING) AS member_id,
     CAST(NULL AS STRING) AS membership_id,
+    CAST(NULL AS STRING) AS program_name,
+    ARRAY<STRING>[] AS partner_company_ids,
+    ARRAY<STRING>[] AS partner_names,
     COALESCE(b.requires_manual_review, TRUE) AS requires_manual_review,
     b.match_confidence
   FROM `datahub-prod-477220.staging.stg_bigtime_projects` AS p
@@ -143,6 +204,8 @@ bigtime_projects AS (
 )
 
 SELECT * FROM hubspot_deals
+UNION ALL
+SELECT * FROM hubspot_startup_projects
 UNION ALL
 SELECT * FROM officernd_memberships
 UNION ALL

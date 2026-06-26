@@ -68,6 +68,7 @@ Review:
 - Row count matches `dim_company`.
 - Engagement taxonomy currently contains only `Business`; future Program, Technical, and Strategic categories should be added through structured sources in `fct_engagement_ledger` without changing the model grain.
 - `engagement_timeline` is available in `mart_newlab_companies` for compact company-level engagement review.
-- `partner_name` and `program_name` remain TODOs until structured upstream attribution fields are modeled.
+- HubSpot Startup Project partner attribution is populated from `project_partner` associations; program context is populated from `property_offering`.
+- HubSpot CRM activities and project activity associations remain excluded from the MVP.
 - Smoke tests are reviewed.
 - Data owner confirms `mart_newlab_companies` is the default downstream company dataset.

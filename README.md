@@ -36,11 +36,11 @@ The goal is to align on architecture, grain, keys, data quality strategy, and im
 
 ## Engagement MVP Scope
 
-`fct_engagement_ledger` represents structured business engagements only: HubSpot deals, OfficeRnD memberships, and BigTime projects. HubSpot CRM activity objects such as emails, calls, notes, meetings, and tasks are intentionally excluded from the MVP.
+`fct_engagement_ledger` represents structured business engagements only: HubSpot deals, HubSpot Startup Projects, OfficeRnD memberships, and BigTime projects. HubSpot CRM activity objects such as emails, calls, notes, meetings, tasks, and project activity associations are intentionally excluded from the MVP.
 
 The current taxonomy uses `engagement_category = 'Business'`. Future structured Program, Technical, and Strategic sources can extend the same ledger grain without redesigning the model. `mart_newlab_companies` includes `engagement_timeline`, a compact 20-event company-level timeline built from the ledger.
 
-Partner/program attribution is not currently modeled in the ledger. Add `partner_name` and `program_name` only after structured partner, program, or HubSpot project/deal association fields are available upstream.
+HubSpot Startup Project partner attribution comes from `project_partner` company associations. Program context comes from `hubspot.projects.property_offering`. Broader ad hoc or unstructured engagements remain out of scope until modeled as structured sources.
 
 ## Validation Notes
 

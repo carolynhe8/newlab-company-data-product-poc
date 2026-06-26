@@ -90,14 +90,14 @@ engagement_summary AS (
         CAST(engagement_status AS STRING) AS engagement_status,
         start_date,
         end_date,
-        CAST(source_system AS STRING) AS source_system
+        CAST(source_system AS STRING) AS source_system,
+        CAST(program_name AS STRING) AS program_name,
+        COALESCE(partner_company_ids, ARRAY<STRING>[]) AS partner_company_ids,
+        COALESCE(partner_names, ARRAY<STRING>[]) AS partner_names
       )
       ORDER BY start_date DESC
       LIMIT 20
     ) AS engagement_timeline,
-    -- TODO: Add partner_name/program_name to these structs once structured
-    -- partner, program, or HubSpot project/deal association fields are modeled
-    -- in fct_engagement_ledger.
     ARRAY_AGG(
       STRUCT(
         CAST(engagement_type AS STRING) AS engagement_type,
@@ -105,7 +105,10 @@ engagement_summary AS (
         CAST(engagement_status AS STRING) AS engagement_status,
         start_date,
         end_date,
-        CAST(source_system AS STRING) AS source_system
+        CAST(source_system AS STRING) AS source_system,
+        CAST(program_name AS STRING) AS program_name,
+        COALESCE(partner_company_ids, ARRAY<STRING>[]) AS partner_company_ids,
+        COALESCE(partner_names, ARRAY<STRING>[]) AS partner_names
       )
       ORDER BY start_date DESC
       LIMIT 10
@@ -118,7 +121,10 @@ engagement_summary AS (
           CAST(engagement_status AS STRING) AS engagement_status,
           start_date,
           end_date,
-          CAST(source_system AS STRING) AS source_system
+          CAST(source_system AS STRING) AS source_system,
+          CAST(program_name AS STRING) AS program_name,
+          COALESCE(partner_company_ids, ARRAY<STRING>[]) AS partner_company_ids,
+          COALESCE(partner_names, ARRAY<STRING>[]) AS partner_names
         ),
         NULL
       )
@@ -261,7 +267,10 @@ SELECT
       engagement_status STRING,
       start_date DATE,
       end_date DATE,
-      source_system STRING
+      source_system STRING,
+      program_name STRING,
+      partner_company_ids ARRAY<STRING>,
+      partner_names ARRAY<STRING>
     >>[]
   ) AS engagement_timeline,
   COALESCE(
@@ -272,7 +281,10 @@ SELECT
       engagement_status STRING,
       start_date DATE,
       end_date DATE,
-      source_system STRING
+      source_system STRING,
+      program_name STRING,
+      partner_company_ids ARRAY<STRING>,
+      partner_names ARRAY<STRING>
     >>[]
   ) AS recent_engagements,
   COALESCE(
@@ -282,7 +294,10 @@ SELECT
       engagement_status STRING,
       start_date DATE,
       end_date DATE,
-      source_system STRING
+      source_system STRING,
+      program_name STRING,
+      partner_company_ids ARRAY<STRING>,
+      partner_names ARRAY<STRING>
     >>[]
   ) AS project_engagements,
   COALESCE(

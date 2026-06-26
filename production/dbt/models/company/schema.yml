@@ -118,7 +118,7 @@ models:
         description: "Lowest match confidence across source mappings for the canonical company."
 
   - name: fct_engagement_ledger
-    description: "Consolidated company engagement ledger for HubSpot deals, OfficeRnD memberships, and BigTime projects."
+    description: "Consolidated company engagement ledger for HubSpot deals, HubSpot Startup Projects, OfficeRnD memberships, and BigTime projects. HubSpot CRM activities remain excluded."
     columns:
       - name: engagement_event_id
         description: "Deterministic primary key generated from source type and source identifiers."
@@ -166,7 +166,7 @@ models:
       - name: engagement_name
         description: "Human-readable engagement name from the source system."
       - name: engagement_subtype
-        description: "Source-specific subtype such as deal type, membership category, or project production status."
+        description: "Source-specific subtype such as deal type, membership category, HubSpot Startup Project category, or BigTime project production status."
       - name: engagement_status
         description: "Normalized engagement status where possible."
       - name: engagement_status_raw
@@ -181,6 +181,12 @@ models:
         description: "OfficeRnD member ID for membership rows; null for other sources."
       - name: membership_id
         description: "OfficeRnD membership ID for membership rows; null for other sources."
+      - name: program_name
+        description: "Program, studio, or offering context when available. For HubSpot Startup Projects this comes from hubspot.projects.property_offering."
+      - name: partner_company_ids
+        description: "Partner HubSpot company IDs associated to HubSpot Startup Projects through project_partner associations. Empty for sources without structured partner attribution."
+      - name: partner_names
+        description: "Partner company names associated to HubSpot Startup Projects through project_partner associations. Empty for sources without structured partner attribution."
       - name: requires_manual_review
         description: "Mapping review flag for the source company. Defaults true when no bridge match is found."
         tests:
