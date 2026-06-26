@@ -34,9 +34,16 @@ The goal is to align on architecture, grain, keys, data quality strategy, and im
 
 `bridge_company_source_poc` is the source of truth for company mappings. `dim_company_poc` uses deterministic representative records for display attributes only and should not replace the bridge for audit, source joins, or identity resolution.
 
+## Engagement MVP Scope
+
+`fct_engagement_ledger` represents structured business engagements only: HubSpot deals, OfficeRnD memberships, and BigTime projects. HubSpot CRM activity objects such as emails, calls, notes, meetings, and tasks are intentionally excluded from the MVP.
+
+The current taxonomy uses `engagement_category = 'Business'`. Future structured Program, Technical, and Strategic sources can extend the same ledger grain without redesigning the model. `mart_newlab_companies` includes `engagement_timeline`, a compact 20-event company-level timeline built from the ledger.
+
+Partner/program attribution is not currently modeled in the ledger. Add `partner_name` and `program_name` only after structured partner, program, or HubSpot project/deal association fields are available upstream.
+
 ## Validation Notes
 
 The four model SQL files were validated with local `bq query` and `LIMIT 1`. No BigQuery objects were created, modified, or deleted during validation.
 
 Before promotion, rerun `sql/qa_checks.sql` and capture results for the target scratch or dbt environment.
-

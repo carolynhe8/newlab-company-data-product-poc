@@ -29,6 +29,7 @@ hubspot_deals AS (
     b.canonical_company_id IS NULL AS canonical_company_id_is_null,
     dc.company_id AS source_company_id,
     'hubspot' AS source_system,
+    'Business' AS engagement_category,
     'deal' AS engagement_type,
     d.deal_id AS source_engagement_id,
     d.deal_name AS engagement_name,
@@ -75,6 +76,7 @@ officernd_memberships AS (
     b.canonical_company_id IS NULL AS canonical_company_id_is_null,
     md.company_id AS source_company_id,
     'officernd' AS source_system,
+    'Business' AS engagement_category,
     'membership' AS engagement_type,
     md.membership_id AS source_engagement_id,
     md.membership_name AS engagement_name,
@@ -106,6 +108,7 @@ bigtime_projects AS (
     b.canonical_company_id IS NULL AS canonical_company_id_is_null,
     CAST(p.client_id AS STRING) AS source_company_id,
     'bigtime' AS source_system,
+    'Business' AS engagement_category,
     'project' AS engagement_type,
     CAST(p.project_id AS STRING) AS source_engagement_id,
     p.project_name AS engagement_name,
@@ -131,4 +134,3 @@ SELECT * FROM officernd_memberships
 UNION ALL
 SELECT * FROM bigtime_projects
 """, target_project, target_dataset);
-

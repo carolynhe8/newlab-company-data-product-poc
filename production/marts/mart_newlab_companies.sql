@@ -98,6 +98,89 @@ engagement_summary AS (
     COUNT(DISTINCT source_system) AS engagement_source_system_count,
     ARRAY_AGG(DISTINCT source_system IGNORE NULLS ORDER BY source_system) AS engagement_source_systems,
     ARRAY_AGG(DISTINCT engagement_type IGNORE NULLS ORDER BY engagement_type) AS engagement_types,
+    ARRAY_AGG(DISTINCT engagement_category IGNORE NULLS ORDER BY engagement_category) AS engagement_categories,
+    -- TODO: Add structured Program, Technical, and Strategic categories when
+    -- source data for showcases, demo days, accelerators, office hours, grants,
+    -- pilots, technical assistance, investments, and partnerships is modeled in
+    -- fct_engagement_ledger.
+    ARRAY_AGG(
+      STRUCT(
+        CAST(engagement_category AS STRING) AS engagement_category,
+        CAST(engagement_type AS STRING) AS engagement_type,
+        CAST(engagement_name AS STRING) AS engagement_name,
+        CAST(engagement_status AS STRING) AS engagement_status,
+        start_date,
+        end_date,
+        CAST(source_system AS STRING) AS source_system
+      )
+      ORDER BY start_date DESC
+      LIMIT 20
+    ) AS engagement_timeline,
+    -- TODO: Add partner_name/program_name to these structs once structured
+    -- partner, program, or HubSpot project/deal association fields are modeled
+    -- in fct_engagement_ledger.
+    ARRAY_AGG(
+      STRUCT(
+        CAST(engagement_type AS STRING) AS engagement_type,
+        CAST(engagement_name AS STRING) AS engagement_name,
+        CAST(engagement_status AS STRING) AS engagement_status,
+        start_date,
+        end_date,
+        CAST(source_system AS STRING) AS source_system
+      )
+      ORDER BY start_date DESC
+      LIMIT 10
+    ) AS recent_engagements,
+    ARRAY_AGG(
+      IF(
+        engagement_type = 'project',
+        STRUCT(
+          CAST(engagement_name AS STRING) AS engagement_name,
+          CAST(engagement_status AS STRING) AS engagement_status,
+          start_date,
+          end_date,
+          CAST(source_system AS STRING) AS source_system
+        ),
+        NULL
+      )
+      IGNORE NULLS
+      ORDER BY IF(engagement_type = 'project', start_date, NULL) DESC
+      LIMIT 10
+    ) AS project_engagements,
+    ARRAY_AGG(
+      IF(
+        engagement_type = 'deal',
+        STRUCT(
+          CAST(engagement_name AS STRING) AS engagement_name,
+          CAST(engagement_status AS STRING) AS engagement_status,
+          start_date,
+          end_date,
+          CAST(source_system AS STRING) AS source_system
+        ),
+        NULL
+      )
+      IGNORE NULLS
+      ORDER BY IF(engagement_type = 'deal', start_date, NULL) DESC
+      LIMIT 10
+    ) AS deal_engagements,
+    ARRAY_AGG(
+      IF(
+        engagement_type = 'membership',
+        STRUCT(
+          CAST(engagement_name AS STRING) AS engagement_name,
+          CAST(engagement_status AS STRING) AS engagement_status,
+          start_date,
+          end_date,
+          CAST(source_system AS STRING) AS source_system
+        ),
+        NULL
+      )
+      IGNORE NULLS
+      ORDER BY IF(engagement_type = 'membership', start_date, NULL) DESC
+      LIMIT 10
+    ) AS membership_engagements,
+    -- TODO: Add high/medium/low impact engagement rollups once an engagement
+    -- taxonomy or importance tier is modeled in fct_engagement_ledger.
     SUM(COALESCE(amount, 0)) AS total_source_reported_engagement_amount,
     SUM(IF(engagement_type = 'deal', COALESCE(amount, 0), 0)) AS deal_amount,
     SUM(IF(engagement_type = 'membership', COALESCE(amount, 0), 0)) AS membership_amount,
@@ -201,6 +284,60 @@ SELECT
   COALESCE(e.engagement_source_system_count, 0) AS engagement_source_system_count,
   COALESCE(e.engagement_source_systems, ARRAY<STRING>[]) AS engagement_source_systems,
   COALESCE(e.engagement_types, ARRAY<STRING>[]) AS engagement_types,
+  COALESCE(e.engagement_categories, ARRAY<STRING>[]) AS engagement_categories,
+  COALESCE(
+    e.engagement_timeline,
+    ARRAY<STRUCT<
+      engagement_category STRING,
+      engagement_type STRING,
+      engagement_name STRING,
+      engagement_status STRING,
+      start_date DATE,
+      end_date DATE,
+      source_system STRING
+    >>[]
+  ) AS engagement_timeline,
+  COALESCE(
+    e.recent_engagements,
+    ARRAY<STRUCT<
+      engagement_type STRING,
+      engagement_name STRING,
+      engagement_status STRING,
+      start_date DATE,
+      end_date DATE,
+      source_system STRING
+    >>[]
+  ) AS recent_engagements,
+  COALESCE(
+    e.project_engagements,
+    ARRAY<STRUCT<
+      engagement_name STRING,
+      engagement_status STRING,
+      start_date DATE,
+      end_date DATE,
+      source_system STRING
+    >>[]
+  ) AS project_engagements,
+  COALESCE(
+    e.deal_engagements,
+    ARRAY<STRUCT<
+      engagement_name STRING,
+      engagement_status STRING,
+      start_date DATE,
+      end_date DATE,
+      source_system STRING
+    >>[]
+  ) AS deal_engagements,
+  COALESCE(
+    e.membership_engagements,
+    ARRAY<STRUCT<
+      engagement_name STRING,
+      engagement_status STRING,
+      start_date DATE,
+      end_date DATE,
+      source_system STRING
+    >>[]
+  ) AS membership_engagements,
   COALESCE(e.total_engagement_count, 0) > 0 AS has_engagement,
   COALESCE(e.deal_engagement_count, 0) > 0 AS has_deal_engagement,
   COALESCE(e.membership_engagement_count, 0) > 0 AS has_membership_engagement,

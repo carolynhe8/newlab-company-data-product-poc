@@ -13,6 +13,7 @@ Grain: one row per `canonical_company_id`.
 - Confirm whether models should deploy as views or tables.
 - Confirm that future membership months remain out of `mart_membership_status`.
 - Confirm that downstream users should start from `mart_newlab_companies`, not the lower-level bridge, dimension, fact, or membership mart.
+- Confirm that `fct_engagement_ledger` remains limited to structured business engagements for MVP and excludes HubSpot CRM activity objects.
 
 ## SQL Deployment Order
 
@@ -65,6 +66,8 @@ Review:
 - `mart_newlab_companies` builds successfully.
 - `canonical_company_id` is unique and not null.
 - Row count matches `dim_company`.
+- Engagement taxonomy currently contains only `Business`; future Program, Technical, and Strategic categories should be added through structured sources in `fct_engagement_ledger` without changing the model grain.
+- `engagement_timeline` is available in `mart_newlab_companies` for compact company-level engagement review.
+- `partner_name` and `program_name` remain TODOs until structured upstream attribution fields are modeled.
 - Smoke tests are reviewed.
 - Data owner confirms `mart_newlab_companies` is the default downstream company dataset.
-

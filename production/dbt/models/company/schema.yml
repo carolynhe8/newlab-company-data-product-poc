@@ -147,6 +147,12 @@ models:
           - not_null
           - accepted_values:
               values: ['hubspot', 'officernd', 'bigtime']
+      - name: engagement_category
+        description: "High-level engagement taxonomy category. Current MVP structured sources are Business engagements."
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['Business']
       - name: engagement_type
         description: "High-level engagement type."
         tests:
@@ -259,4 +265,3 @@ models:
         description: "Lowest match confidence observed in the membership group."
       - name: observed_membership_statuses
         description: "Up to 10 distinct membership statuses observed in the reporting group."
-

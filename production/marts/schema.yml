@@ -101,4 +101,15 @@ models:
         description: "Total count of engagement ledger rows for the company."
         tests:
           - not_null
-
+      - name: engagement_categories
+        description: "Distinct engagement taxonomy categories observed for the company. MVP values are currently limited to Business."
+      - name: engagement_timeline
+        description: "Up to 20 most recent structured business engagement events from fct_engagement_ledger, including category, type, name, status, dates, and source system."
+      - name: recent_engagements
+        description: "Up to 10 most recent engagement events from fct_engagement_ledger, with type, name, status, dates, and source system."
+      - name: project_engagements
+        description: "Up to 10 most recent project engagement events from fct_engagement_ledger."
+      - name: deal_engagements
+        description: "Up to 10 most recent deal engagement events from fct_engagement_ledger."
+      - name: membership_engagements
+        description: "Up to 10 most recent membership engagement events from fct_engagement_ledger."

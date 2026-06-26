@@ -21,6 +21,7 @@ Final user-facing mart:
 - `mart_newlab_companies`
 - Grain: one row per `canonical_company_id`
 - Intended default dataset for Connected Sheets, dashboards, and ad hoc company analysis
+- Includes compact engagement rollups and `engagement_timeline` from structured ledger events.
 
 ## Deployment Order
 
@@ -36,6 +37,8 @@ Final user-facing mart:
 - `intermediate.int_cross_source_companies` remains the canonical identity source.
 - `dim_company` is for display/convenience attributes; the bridge remains mapping truth.
 - HubSpot deal-company association uses `category = 'HUBSPOT_DEFINED'` and `type_id = 5`.
+- `fct_engagement_ledger` represents structured business engagements only: HubSpot deals, OfficeRnD memberships, and BigTime projects.
+- HubSpot CRM activity objects such as emails, calls, notes, meetings, and tasks are intentionally excluded from the MVP.
 - `mart_membership_status` covers current/past months only.
 - `company_data` is a placeholder target dataset and must be confirmed before deployment.
 
@@ -44,6 +47,8 @@ Final user-facing mart:
 - Null canonical mappings remain excluded from the final company mart.
 - Manual-review mappings are surfaced, not resolved.
 - Engagement `amount` has source-specific meaning across deals, memberships, and projects.
+- Current engagement taxonomy is limited to `Business`. Program, Technical, and Strategic categories are reserved for future structured sources such as showcases, demo days, accelerators, office hours, grants, pilots, technical assistance, investments, and partnerships.
+- Partner/program attribution is not currently modeled; add `partner_name` and `program_name` only once structured upstream association fields exist.
 - Future membership bookings are deferred.
 - Source-system arrays should be preserved for audit and drill-through.
 
@@ -67,4 +72,3 @@ Final user-facing mart:
 ## Recommended Next Step
 
 Deploy to a dev dataset, run the lightweight smoke tests, review results with Cristóvão, then promote the same model set to production.
-
