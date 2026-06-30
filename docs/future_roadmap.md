@@ -63,6 +63,47 @@ Success criteria:
 
 ## Medium-Term Enhancements
 
+## Phase 2 — Qualification & Operational Intelligence
+
+The current MVP provides the necessary foundation for operational intelligence: canonical company IDs, primary company owner ID, the engagement ledger, HubSpot Startup Projects, partner attribution, program attribution, the engagement timeline, and the one-row-per-company `mart_newlab_companies` mart.
+
+### Qualification Support
+
+- Tier A status.
+- Fund qualification.
+- Qualification-meeting workflow.
+- Qualification triggers.
+- Resurfacing companies after major milestones.
+
+### Readiness & Risk
+
+- Technical readiness.
+- Commercialization readiness.
+- Team readiness.
+- Deep Tech Readiness Framework.
+- Red flags and disqualification reasons.
+
+### Qualitative Knowledge
+
+- Investment memos.
+- Commercialization reviews.
+- State intake forms.
+- Linked documents.
+- Internal notes.
+- Document metadata.
+
+### External Enrichment
+
+- PitchBook.
+- Harmonic.
+- LinkedIn/headcount.
+- Hiring signals.
+- Founder/team activity.
+
+### Owner Enrichment
+
+The MVP uses `hubspot.company.property_hubspot_owner_id` as the authoritative company-level primary internal Newlab relationship owner and resolves owner name/email from `hubspot.owner`. Deal and Startup Project owners should remain engagement-level context unless a separate operational workflow requires them.
+
 ### 4. Expand Engagement Coverage
 
 Goal:
@@ -201,4 +242,3 @@ Success criteria:
 - Should engagement amount be split into source-specific measures instead of one generic `amount` field?
 - Should membership status and future bookings share one model with a period type, or remain separate marts?
 - Should HubSpot activity events be modeled as company engagement or as a separate activity fact?
-

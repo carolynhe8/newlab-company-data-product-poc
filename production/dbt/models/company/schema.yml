@@ -76,6 +76,12 @@ models:
         description: "HubSpot representative employee count."
       - name: annual_revenue
         description: "HubSpot representative annual revenue."
+      - name: primary_owner_id
+        description: "Authoritative company-level primary internal Newlab relationship owner ID from hubspot.company.property_hubspot_owner_id."
+      - name: primary_owner_name
+        description: "Primary internal Newlab relationship owner name resolved from hubspot.owner."
+      - name: primary_owner_email
+        description: "Primary internal Newlab relationship owner email resolved from hubspot.owner."
       - name: officernd_company_email
         description: "OfficeRnD representative company email."
       - name: officernd_company_url

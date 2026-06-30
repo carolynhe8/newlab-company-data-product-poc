@@ -47,6 +47,7 @@ Final user-facing mart:
 
 - Null canonical mappings remain excluded from the final company mart.
 - Manual-review mappings are surfaced, not resolved.
+- `primary_owner_id` is implemented as the authoritative company-level internal Newlab relationship owner from `hubspot.company.property_hubspot_owner_id`; owner name/email are resolved from `hubspot.owner`.
 - Engagement `amount` has source-specific meaning across deals, memberships, and projects.
 - Current engagement taxonomy is limited to `Business`. Program, Technical, and Strategic categories are reserved for future structured sources such as showcases, demo days, accelerators, office hours, grants, pilots, technical assistance, investments, and partnerships.
 - Partner/program context is modeled for HubSpot Startup Projects where structured project-company associations and `property_offering` are available. Ad hoc emails, notes, tasks, and project activity associations remain out of scope.
@@ -67,8 +68,19 @@ Final user-facing mart:
 - Approved dev/prod dataset name.
 - View vs table materialization.
 - Approval that `mart_newlab_companies` is the default downstream company dataset.
+- Acceptance of owner coverage and any null-owner remediation workflow.
 - Acceptance of known caveats for MVP.
 - Timing and owner for production deployment.
+
+## Phase 2 — Qualification & Operational Intelligence
+
+Phase 2 should extend the MVP foundation, not replace it. The current MVP already provides canonical company IDs, primary company owner ID, the engagement ledger, HubSpot Startup Projects, partner attribution, program attribution, engagement timeline, and a one-row-per-company company mart.
+
+Future qualification support should cover Tier A status, fund qualification, qualification-meeting workflow, qualification triggers, and resurfacing companies after major milestones.
+
+Readiness and risk enhancements should cover technical readiness, commercialization readiness, team readiness, the Deep Tech Readiness Framework, and red flags or disqualification reasons.
+
+Qualitative knowledge should include investment memos, commercialization reviews, state intake forms, linked documents, internal notes, and document metadata. External enrichment candidates include PitchBook, Harmonic, LinkedIn/headcount, hiring signals, and founder/team activity.
 
 ## Recommended Next Step
 

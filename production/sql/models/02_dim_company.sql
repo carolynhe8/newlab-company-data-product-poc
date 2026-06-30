@@ -11,12 +11,17 @@
 -- Source dependencies:
 --   datahub-prod-477220.intermediate.int_cross_source_companies
 --   datahub-prod-477220.staging.stg_hubspot_companies
+--   datahub-prod-477220.hubspot.company
+--   datahub-prod-477220.hubspot.owner
 --   datahub-prod-477220.staging.stg_officernd_companies
 --   datahub-prod-477220.staging.stg_bigtime_clients
 --
 -- Notes:
 --   Representative source records are for display/convenience only.
 --   Use bridge_company_source for source-system mapping truth.
+--   primary_owner_id is the authoritative company-level internal Newlab
+--   relationship owner from hubspot.company.property_hubspot_owner_id.
+--   primary_owner_name and primary_owner_email are resolved from hubspot.owner.
 
 WITH bridge AS (
   SELECT *
@@ -62,6 +67,9 @@ hubspot_representative AS (
         NULLIF(h.property_country, '') AS country,
         h.employee_count,
         h.annual_revenue,
+        CAST(raw_company.property_hubspot_owner_id AS STRING) AS primary_owner_id,
+        NULLIF(TRIM(CONCAT(COALESCE(owner.first_name, ''), ' ', COALESCE(owner.last_name, ''))), '') AS primary_owner_name,
+        NULLIF(owner.email, '') AS primary_owner_email,
         h.created_at,
         h.updated_at
       )
@@ -75,6 +83,10 @@ hubspot_representative AS (
   JOIN `datahub-prod-477220.staging.stg_hubspot_companies` AS h
     ON b.source_system = 'hubspot'
    AND b.source_company_id = CAST(h.company_id AS STRING)
+  LEFT JOIN `datahub-prod-477220.hubspot.company` AS raw_company
+    ON CAST(raw_company.id AS STRING) = CAST(h.company_id AS STRING)
+  LEFT JOIN `datahub-prod-477220.hubspot.owner` AS owner
+    ON owner.owner_id = raw_company.property_hubspot_owner_id
   GROUP BY b.canonical_company_id
 ),
 
@@ -151,6 +163,9 @@ SELECT
   h.h.country AS hubspot_country,
   h.h.employee_count,
   h.h.annual_revenue,
+  h.h.primary_owner_id,
+  h.h.primary_owner_name,
+  h.h.primary_owner_email,
   o.o.company_email AS officernd_company_email,
   o.o.company_url AS officernd_company_url,
   o.o.company_status AS officernd_company_status,
@@ -176,4 +191,3 @@ LEFT JOIN officernd_representative AS o
   ON r.canonical_company_id = o.canonical_company_id
 LEFT JOIN bigtime_representative AS bt
   ON r.canonical_company_id = bt.canonical_company_id
-

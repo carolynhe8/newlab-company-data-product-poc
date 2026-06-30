@@ -14,6 +14,7 @@ Grain: one row per `canonical_company_id`.
 - Confirm that future membership months remain out of `mart_membership_status`.
 - Confirm that downstream users should start from `mart_newlab_companies`, not the lower-level bridge, dimension, fact, or membership mart.
 - Confirm that `fct_engagement_ledger` remains limited to structured business engagements for MVP and excludes HubSpot CRM activity objects.
+- Confirm that `hubspot.company.property_hubspot_owner_id` remains the authoritative company-level primary internal Newlab relationship owner.
 
 ## SQL Deployment Order
 
@@ -70,5 +71,15 @@ Review:
 - `engagement_timeline` is available in `mart_newlab_companies` for compact company-level engagement review.
 - HubSpot Startup Project partner attribution is populated from `project_partner` associations; program context is populated from `property_offering`.
 - HubSpot CRM activities and project activity associations remain excluded from the MVP.
+- `primary_owner_id` is populated from `hubspot.company.property_hubspot_owner_id`; project/deal owners are intentionally excluded from the company-level mart.
 - Smoke tests are reviewed.
 - Data owner confirms `mart_newlab_companies` is the default downstream company dataset.
+
+## Phase 2 — Qualification & Operational Intelligence
+
+- Review owner ID/name/email coverage before production handoff.
+- Use the existing MVP foundation: canonical company IDs, primary company owner ID, engagement ledger, HubSpot Startup Projects, partner attribution, program attribution, engagement timeline, and one-row-per-company company mart.
+- Plan qualification support for Tier A status, fund qualification, qualification-meeting workflow, qualification triggers, and resurfacing companies after major milestones.
+- Plan readiness and risk fields for technical readiness, commercialization readiness, team readiness, the Deep Tech Readiness Framework, and red flags or disqualification reasons.
+- Plan qualitative knowledge sources such as investment memos, commercialization reviews, state intake forms, linked documents, internal notes, and document metadata.
+- Evaluate external enrichment from PitchBook, Harmonic, LinkedIn/headcount, hiring signals, and founder/team activity.

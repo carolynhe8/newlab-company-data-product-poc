@@ -19,6 +19,12 @@ models:
         tests:
           - accepted_values:
               values: ['hubspot', 'officernd', 'bigtime']
+      - name: primary_owner_id
+        description: "Authoritative company-level primary internal Newlab relationship owner ID from hubspot.company.property_hubspot_owner_id."
+      - name: primary_owner_name
+        description: "Primary internal Newlab relationship owner name resolved from hubspot.owner."
+      - name: primary_owner_email
+        description: "Primary internal Newlab relationship owner email resolved from hubspot.owner."
       - name: source_system_count
         description: "Count of source systems mapped to the canonical company."
         tests:

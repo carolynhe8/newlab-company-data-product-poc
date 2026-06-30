@@ -42,6 +42,16 @@ The current taxonomy uses `engagement_category = 'Business'`. Future structured 
 
 HubSpot Startup Project partner attribution comes from `project_partner` company associations. Program context comes from `hubspot.projects.property_offering`. Broader ad hoc or unstructured engagements remain out of scope until modeled as structured sources.
 
+## Phase 2 — Qualification & Operational Intelligence
+
+Future enhancements should build on the MVP foundation: canonical company IDs, the engagement ledger, HubSpot Startup Projects, partner attribution, program attribution, the engagement timeline, and the one-row-per-company `mart_newlab_companies` mart.
+
+Qualification support should add Tier A status, fund qualification, qualification-meeting workflow, qualification triggers, and resurfacing companies after major milestones. Readiness and risk work should cover technical readiness, commercialization readiness, team readiness, the Deep Tech Readiness Framework, and red flags or disqualification reasons.
+
+Qualitative knowledge should incorporate investment memos, commercialization reviews, state intake forms, linked documents, internal notes, and document metadata. External enrichment candidates include PitchBook, Harmonic, LinkedIn/headcount, hiring signals, and founder/team activity.
+
+The primary internal Newlab relationship owner is sourced from `hubspot.company.property_hubspot_owner_id` and exposed as `primary_owner_id` in `dim_company` and `mart_newlab_companies`. Owner name and email are resolved from `hubspot.owner`. Deal and Startup Project owners remain engagement-level concepts and are intentionally excluded from the company-level mart.
+
 ## Validation Notes
 
 The four model SQL files were validated with local `bq query` and `LIMIT 1`. No BigQuery objects were created, modified, or deleted during validation.

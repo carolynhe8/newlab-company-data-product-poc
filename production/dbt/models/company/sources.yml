@@ -41,7 +41,9 @@ sources:
       - name: projects_to_company
         description: "HubSpot project-to-company associations. The MVP uses type_id 105 for project_startup and type_id 107 for project_partner."
       - name: company
-        description: "HubSpot company object used to label Startup Project partner companies."
+        description: "HubSpot company object used to label Startup Project partner companies and source the primary internal Newlab relationship owner."
+      - name: owner
+        description: "HubSpot owner reference table used to resolve primary internal Newlab relationship owner name and email."
 
   - name: marts
     database: "{{ var('source_project', 'datahub-prod-477220') }}"

@@ -53,6 +53,9 @@ hubspot_representative AS (
         NULLIF(h.property_country, '') AS country,
         h.employee_count,
         h.annual_revenue,
+        CAST(raw_company.property_hubspot_owner_id AS STRING) AS primary_owner_id,
+        NULLIF(TRIM(CONCAT(COALESCE(owner.first_name, ''), ' ', COALESCE(owner.last_name, ''))), '') AS primary_owner_name,
+        NULLIF(owner.email, '') AS primary_owner_email,
         h.created_at,
         h.updated_at
       )
@@ -66,6 +69,10 @@ hubspot_representative AS (
   JOIN {{ source('staging', 'stg_hubspot_companies') }} AS h
     ON b.source_system = 'hubspot'
    AND b.source_company_id = CAST(h.company_id AS STRING)
+  LEFT JOIN {{ source('hubspot', 'company') }} AS raw_company
+    ON CAST(raw_company.id AS STRING) = CAST(h.company_id AS STRING)
+  LEFT JOIN {{ source('hubspot', 'owner') }} AS owner
+    ON owner.owner_id = raw_company.property_hubspot_owner_id
   GROUP BY b.canonical_company_id
 ),
 
@@ -142,6 +149,9 @@ SELECT
   h.h.country AS hubspot_country,
   h.h.employee_count,
   h.h.annual_revenue,
+  h.h.primary_owner_id,
+  h.h.primary_owner_name,
+  h.h.primary_owner_email,
   o.o.company_email AS officernd_company_email,
   o.o.company_url AS officernd_company_url,
   o.o.company_status AS officernd_company_status,
@@ -167,4 +177,3 @@ LEFT JOIN officernd_representative AS o
   ON r.canonical_company_id = o.canonical_company_id
 LEFT JOIN bigtime_representative AS bt
   ON r.canonical_company_id = bt.canonical_company_id
-
